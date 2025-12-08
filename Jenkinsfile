@@ -54,29 +54,13 @@ pipeline {
         
         stage('Push to Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", "${DOCKER_CREDENTIALS_ID}") {
-                        def services = [
-                            'api-gateway', 'auth-service', 'user-service',
-                            'product-service', 'cart-service', 'order-service',
-                            'payment-service', 'notification-service', 'delivery-service',
-                            'analytics-service', 'admin-service', 'frontend'
-                        ]
-                        
-                        services.each { service ->
-                            bat "docker push ${DOCKER_REGISTRY}/revcart-${service}:latest"
-                        }
-                    }
-                }
+                echo 'Docker images built successfully! Push to Docker Hub manually or configure credentials.'
             }
         }
         
         stage('Deploy') {
             steps {
-                dir('microservices') {
-                    bat 'docker-compose down'
-                    bat 'docker-compose up -d'
-                }
+                echo 'Docker images ready! Deploy using: docker-compose up -d'
             }
         }
     }
