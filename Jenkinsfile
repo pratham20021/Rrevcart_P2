@@ -19,7 +19,7 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('microservices') {
-                    sh 'mvn clean package -DskipTests'
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -27,8 +27,8 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('revcart-frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
+                    bat 'npm install'
+                    bat 'npm run build'
                 }
             }
         }
@@ -44,10 +44,10 @@ pipeline {
                     ]
                     
                     services.each { service ->
-                        sh "docker build -t ${DOCKER_REGISTRY}/revcart-${service}:latest ./microservices/${service}"
+                        bat "docker build -t ${DOCKER_REGISTRY}/revcart-${service}:latest ./microservices/${service}"
                     }
                     
-                    sh "docker build -t ${DOCKER_REGISTRY}/revcart-frontend:latest ./revcart-frontend"
+                    bat "docker build -t ${DOCKER_REGISTRY}/revcart-frontend:latest ./revcart-frontend"
                 }
             }
         }
@@ -64,7 +64,7 @@ pipeline {
                         ]
                         
                         services.each { service ->
-                            sh "docker push ${DOCKER_REGISTRY}/revcart-${service}:latest"
+                            bat "docker push ${DOCKER_REGISTRY}/revcart-${service}:latest"
                         }
                     }
                 }
@@ -74,8 +74,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('microservices') {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    bat 'docker-compose down'
+                    bat 'docker-compose up -d'
                 }
             }
         }
