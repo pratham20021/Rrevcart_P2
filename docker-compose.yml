@@ -3,20 +3,31 @@ version: '3.8'
 services:
   # Infrastructure
   consul:
-    image: consul:latest
+    image: hashicorp/consul:latest
+    command: agent -server -ui -bootstrap-expect=1 -client=0.0.0.0
     ports:
       - "8500:8500"
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - revcart-network
 
   mysql:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - revcart-network
 
@@ -44,8 +55,14 @@ services:
     build: ./microservices/api-gateway
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=api-gateway
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=api-gateway
     depends_on:
-      - consul
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -58,9 +75,14 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=auth-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=auth-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -68,9 +90,15 @@ services:
     build: ./microservices/user-service
     ports:
       - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_user?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=user-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=user-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -78,9 +106,15 @@ services:
     build: ./microservices/product-service
     ports:
       - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_products?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=product-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=product-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -88,6 +122,11 @@ services:
     build: ./microservices/cart-service
     ports:
       - "8084:8084"
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=cart-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=cart-service
     depends_on:
       - consul
       - redis
@@ -98,9 +137,15 @@ services:
     build: ./microservices/order-service
     ports:
       - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_order?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=order-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=order-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -108,9 +153,15 @@ services:
     build: ./microservices/payment-service
     ports:
       - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_payment?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=payment-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=payment-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -118,6 +169,12 @@ services:
     build: ./microservices/notification-service
     ports:
       - "8087:8087"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=host.docker.internal
+      - SPRING_DATA_MONGODB_DATABASE=revcart_notifications
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=notification-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=notification-service
     depends_on:
       - consul
       - mongodb
@@ -128,9 +185,15 @@ services:
     build: ./microservices/delivery-service
     ports:
       - "8088:8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_delivery?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=delivery-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=delivery-service
     depends_on:
-      - consul
-      - mysql
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 
@@ -138,6 +201,11 @@ services:
     build: ./microservices/analytics-service
     ports:
       - "8089:8089"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=analytics-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=analytics-service
     depends_on:
       - consul
       - mongodb
@@ -148,8 +216,15 @@ services:
     build: ./microservices/admin-service
     ports:
       - "8090:8090"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/revcart_admin?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=admin-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=admin-service
     depends_on:
-      - consul
+      consul:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - revcart-network
 

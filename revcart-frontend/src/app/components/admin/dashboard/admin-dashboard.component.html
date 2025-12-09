@@ -58,7 +58,12 @@
 
   <!-- Quick Actions -->
   <div *ngIf="!loading" class="quick-actions">
-    <h2 class="section-title">Admin Management</h2>
+    <div class="section-header">
+      <h2 class="section-title">Admin Management</h2>
+      <button class="broadcast-btn" (click)="openBroadcastModal()">
+        <i class="fas fa-bullhorn"></i> Broadcast Notification
+      </button>
+    </div>
     <div class="actions-grid">
       <button class="action-btn glass-card" routerLink="/admin/products">
         <i class="fas fa-boxes"></i>
@@ -121,6 +126,34 @@
         <i class="fas fa-user-plus"></i>
         <h4>New Customers</h4>
         <p class="metric-value">{{newCustomers}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Broadcast Modal -->
+  <div *ngIf="showBroadcastModal" class="modal-overlay" (click)="closeBroadcastModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3><i class="fas fa-bullhorn"></i> Broadcast Notification to All Users</h3>
+      <div class="form-group">
+        <label>Type</label>
+        <select [(ngModel)]="notificationType" class="form-control">
+          <option value="ANNOUNCEMENT">Announcement</option>
+          <option value="PROMOTION">Promotion</option>
+          <option value="ALERT">Alert</option>
+          <option value="INFO">Information</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input [(ngModel)]="notificationTitle" class="form-control" placeholder="Enter title">
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea [(ngModel)]="notificationMessage" class="form-control" rows="4" placeholder="Enter message"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeBroadcastModal()">Cancel</button>
+        <button class="btn-send" (click)="sendBroadcast()">Send to All Users</button>
       </div>
     </div>
   </div>

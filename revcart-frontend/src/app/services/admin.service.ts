@@ -41,4 +41,8 @@ export class AdminService {
   getTodayMetrics(): Observable<any> {
     return this.http.get(`${this.apiUrl}/metrics/today`);
   }
+  
+  broadcastNotification(type: string, title: string, message: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/notifications/broadcast`, { type, title, message });
+  }
 }

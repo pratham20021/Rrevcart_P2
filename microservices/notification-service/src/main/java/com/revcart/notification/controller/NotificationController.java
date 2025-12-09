@@ -71,4 +71,12 @@ public class NotificationController {
     public void deleteNotification(@PathVariable String id) {
         notificationService.deleteNotification(id);
     }
+    
+    @PostMapping("/broadcast")
+    public List<Notification> broadcastNotification(@RequestBody java.util.Map<String, Object> request) {
+        String type = request.get("type").toString();
+        String title = request.get("title").toString();
+        String message = request.get("message").toString();
+        return notificationService.broadcastToAllUsers(type, title, message);
+    }
 }
