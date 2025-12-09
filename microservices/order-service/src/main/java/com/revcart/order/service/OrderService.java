@@ -79,8 +79,49 @@ public class OrderService {
     
     public Order updateOrderStatus(Long id, OrderStatus status) {
         Order order = getOrderById(id);
+        OrderStatus oldStatus = order.getStatus();
         order.setStatus(status);
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+        
+        // Send notification for status change
+        if (oldStatus != status) {
+            sendStatusChangeNotification(updatedOrder, status);
+        }
+        
+        return updatedOrder;
+    }
+    
+    private void sendStatusChangeNotification(Order order, OrderStatus status) {
+        try {
+            Map<String, Object> notification = new HashMap<>();
+            notification.put("userId", order.getUserId());
+            notification.put("type", "ORDER_STATUS");
+            
+            switch (status) {
+                case PROCESSING:
+                    notification.put("title", "Order Processing");
+                    notification.put("message", "Your order #" + order.getOrderNumber() + " is being processed");
+                    break;
+                case SHIPPED:
+                    notification.put("title", "Order Shipped");
+                    notification.put("message", "Your order #" + order.getOrderNumber() + " has been shipped");
+                    break;
+                case DELIVERED:
+                    notification.put("title", "Order Delivered");
+                    notification.put("message", "Your order #" + order.getOrderNumber() + " has been delivered");
+                    break;
+                case CANCELLED:
+                    notification.put("title", "Order Cancelled");
+                    notification.put("message", "Your order #" + order.getOrderNumber() + " has been cancelled");
+                    break;
+                default:
+                    return;
+            }
+            
+            restTemplate.postForObject("http://localhost:8087/notifications/send", notification, String.class);
+        } catch (Exception e) {
+            System.err.println("Failed to send status notification: " + e.getMessage());
+        }
     }
     
     public void cancelOrder(Long id) {
