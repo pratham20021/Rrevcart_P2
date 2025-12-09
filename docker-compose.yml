@@ -221,6 +221,9 @@ services:
       - SPRING_CLOUD_CONSUL_HOST=consul
       - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=admin-service
       - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=admin-service
+      - PRODUCT_SERVICE_HOST=product-service:8083
+      - ORDER_SERVICE_HOST=order-service:8085
+      - USER_SERVICE_HOST=user-service:8082
     depends_on:
       consul:
         condition: service_healthy

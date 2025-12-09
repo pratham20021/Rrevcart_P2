@@ -24,10 +24,16 @@ public class AdminService {
         try {
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
             
-            Long totalProducts = restTemplate.getForObject("http://localhost:8083/products/count", Long.class);
-            Long totalOrders = restTemplate.getForObject("http://localhost:8085/orders/count", Long.class);
-            Long totalUsers = restTemplate.getForObject("http://localhost:8082/users/count", Long.class);
-            Double totalRevenue = restTemplate.getForObject("http://localhost:8085/orders/revenue", Double.class);
+            String productHost = System.getenv().getOrDefault("PRODUCT_SERVICE_HOST", "localhost:8083");
+            String orderHost = System.getenv().getOrDefault("ORDER_SERVICE_HOST", "localhost:8085");
+            String userHost = System.getenv().getOrDefault("USER_SERVICE_HOST", "localhost:8082");
+            
+            Long totalProducts = restTemplate.getForObject("http://" + productHost + "/products/count", Long.class);
+            Long totalOrders = restTemplate.getForObject("http://" + orderHost + "/orders/count", Long.class);
+            Long totalUsers = restTemplate.getForObject("http://" + userHost + "/users/count", Long.class);
+            Double totalRevenue = restTemplate.getForObject("http://" + orderHost + "/orders/revenue", Double.class);
+            
+            System.out.println("Dashboard Stats - Products: " + totalProducts + ", Orders: " + totalOrders + ", Users: " + totalUsers + ", Revenue: " + totalRevenue);
             
             return new DashboardStats(
                 totalProducts != null ? totalProducts : 0,
