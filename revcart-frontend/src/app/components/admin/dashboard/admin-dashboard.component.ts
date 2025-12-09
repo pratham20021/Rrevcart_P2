@@ -32,7 +32,33 @@ export class AdminDashboardComponent implements OnInit {
   constructor(private adminService: AdminService) {}
 
   ngOnInit() {
-    this.loading = false;
+    this.loadDashboardStats();
+  }
+  
+  loadDashboardStats() {
+    this.loading = true;
+    this.adminService.getDashboardStats().subscribe({
+      next: (stats) => {
+        this.totalProducts = stats.totalProducts;
+        this.totalOrders = stats.totalOrders;
+        this.totalUsers = stats.totalUsers;
+        this.totalRevenue = stats.totalRevenue;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading stats:', err);
+        this.loading = false;
+      }
+    });
+    
+    this.adminService.getTodayMetrics().subscribe({
+      next: (metrics) => {
+        this.todayOrders = metrics.todayOrders || 0;
+        this.todayRevenue = metrics.todayRevenue || 0;
+        this.pendingDeliveries = metrics.pendingDeliveries || 0;
+      },
+      error: (err) => console.error('Error loading today metrics:', err)
+    });
   }
   
   openBroadcastModal() {

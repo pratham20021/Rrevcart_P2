@@ -22,13 +22,22 @@ public class AdminService {
     
     public DashboardStats getDashboardStats() {
         try {
-            long totalProducts = productServiceClient.getProductCount();
-            long totalOrders = orderServiceClient.getOrderCount();
-            long totalUsers = userServiceClient.getUserCount();
-            double totalRevenue = orderServiceClient.getTotalRevenue();
-            return new DashboardStats(totalProducts, totalOrders, totalUsers, totalRevenue);
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            
+            Long totalProducts = restTemplate.getForObject("http://localhost:8083/products/count", Long.class);
+            Long totalOrders = restTemplate.getForObject("http://localhost:8085/orders/count", Long.class);
+            Long totalUsers = restTemplate.getForObject("http://localhost:8082/users/count", Long.class);
+            Double totalRevenue = restTemplate.getForObject("http://localhost:8085/orders/revenue", Double.class);
+            
+            return new DashboardStats(
+                totalProducts != null ? totalProducts : 0,
+                totalOrders != null ? totalOrders : 0,
+                totalUsers != null ? totalUsers : 0,
+                totalRevenue != null ? totalRevenue : 0.0
+            );
         } catch (Exception e) {
             System.err.println("Error fetching dashboard stats: " + e.getMessage());
+            e.printStackTrace();
             return new DashboardStats(0, 0, 0, 0.0);
         }
     }
