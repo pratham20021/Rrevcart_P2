@@ -63,7 +63,7 @@ public class AuthController {
         try {
             if (userRepository.existsByEmail(signUpRequest.getEmail())) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("message", "Error: Email is already in use!"));
+                        .body("Email is already in use!");
             }
             
             User user = new User();
@@ -88,7 +88,8 @@ public class AuthController {
                     userDetails.getEmail(),
                     savedUser.getRole()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Error creating user: " + e.getMessage()));
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error creating user: " + e.getMessage());
         }
     }
     

@@ -16,8 +16,7 @@ export class SignupComponent {
     name: '',
     email: '',
     password: '',
-    phone: '',
-    role: 'CUSTOMER'
+    phone: ''
   };
   
   loading = false;
@@ -33,12 +32,16 @@ export class SignupComponent {
       return;
     }
     
+    if (this.signupData.password.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    
     this.loading = true;
     
     this.authService.signup(this.signupData).subscribe({
       next: (response) => {
         this.loading = false;
-        alert('Account created successfully!');
         this.router.navigate(['/home']);
       },
       error: (error) => {
@@ -47,7 +50,7 @@ export class SignupComponent {
         if (error.status === 0) {
           alert('Cannot connect to server. Please ensure backend services are running.');
         } else if (error.error && typeof error.error === 'string') {
-          alert('Signup failed: ' + error.error);
+          alert(error.error);
         } else {
           alert('Signup failed. Please try again.');
         }

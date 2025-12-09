@@ -35,7 +35,6 @@ export class LoginComponent {
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         this.loading = false;
-        alert('Login successful!');
         this.router.navigate(['/home']);
       },
       error: (error) => {
@@ -44,9 +43,9 @@ export class LoginComponent {
         if (error.status === 401 || error.status === 403) {
           alert('Invalid email or password');
         } else if (error.status === 0) {
-          alert('Cannot connect to server');
+          alert('Cannot connect to server. Please ensure backend services are running.');
         } else {
-          alert('Login failed. Please try again');
+          alert(error.error || 'Login failed. Please try again');
         }
       }
     });
