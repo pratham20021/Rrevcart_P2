@@ -29,17 +29,22 @@
         
         <div class="form-group">
           <label for="category">Category *</label>
-          <select 
-            id="category"
-            [(ngModel)]="product.category"
-            name="category"
-            class="form-control"
-            required>
-            <option value="">Select Category</option>
-            <option *ngFor="let category of categories" [value]="category">
-              {{category | titlecase}}
-            </option>
-          </select>
+          <div class="category-input-group">
+            <select 
+              id="category"
+              [(ngModel)]="product.category"
+              name="category"
+              class="form-control"
+              required>
+              <option value="">Select Category</option>
+              <option *ngFor="let category of categories" [value]="category">
+                {{category | titlecase}}
+              </option>
+            </select>
+            <button type="button" class="btn-add-category" (click)="showAddCategory()" title="Add New Category">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
         </div>
       </div>
 

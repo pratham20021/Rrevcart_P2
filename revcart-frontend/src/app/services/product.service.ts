@@ -110,7 +110,19 @@ export class ProductService {
   }
 
   getCategories(): string[] {
-    return ['fruits', 'vegetables', 'dairy', 'meat', 'beverages', 'bakery', 'snacks', 'frozen'];
+    const storedCategories = localStorage.getItem('customCategories');
+    const customCategories = storedCategories ? JSON.parse(storedCategories) : [];
+    const defaultCategories = ['fruits', 'vegetables', 'dairy', 'meat', 'beverages', 'bakery', 'snacks', 'frozen'];
+    return [...defaultCategories, ...customCategories];
+  }
+
+  addCategory(category: string): void {
+    const storedCategories = localStorage.getItem('customCategories');
+    const customCategories = storedCategories ? JSON.parse(storedCategories) : [];
+    if (!customCategories.includes(category)) {
+      customCategories.push(category);
+      localStorage.setItem('customCategories', JSON.stringify(customCategories));
+    }
   }
 
   // Category mapping for display names vs database values

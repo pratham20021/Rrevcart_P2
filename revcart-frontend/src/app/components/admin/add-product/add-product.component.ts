@@ -35,6 +35,20 @@ export class AddProductComponent {
     this.categories = this.productService.getCategories();
   }
 
+  showAddCategory(): void {
+    const newCategory = prompt('Enter new category name:');
+    if (newCategory && newCategory.trim()) {
+      const trimmedCategory = newCategory.trim().toLowerCase();
+      if (!this.categories.includes(trimmedCategory)) {
+        this.categories.push(trimmedCategory);
+        this.product.category = trimmedCategory;
+        this.productService.addCategory(trimmedCategory);
+      } else {
+        alert('Category already exists!');
+      }
+    }
+  }
+
   onSubmit(): void {
     this.product.currentStock = this.product.initialStock;
     this.product.stock = this.product.initialStock;
