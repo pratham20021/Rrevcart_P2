@@ -54,6 +54,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
         String token = jwtUtils.generateJwtToken(auth);
         
-        response.sendRedirect("http://localhost:4200/oauth2/redirect?token=" + token + "&id=" + user.getId() + "&name=" + user.getName() + "&email=" + user.getEmail() + "&role=" + user.getRole());
+        String frontendUrl = System.getenv().getOrDefault("FRONTEND_URL", "http://localhost:4200");
+        response.sendRedirect(frontendUrl + "/oauth2/redirect?token=" + token + "&id=" + user.getId() + "&name=" + user.getName() + "&email=" + user.getEmail() + "&role=" + user.getRole());
     }
 }
